@@ -43,5 +43,8 @@ print("\tAttacks: " + str(attacks.__len__()))
 print("\tApplications: 0")
 print("\tMalware: 0")
 
-uploadedAttacks = importerLib.uploadFiles(cfClient, attacks)
-importerLib.createAttackScenarios(cfClient, uploadedAttacks)
+uploadedAttackFiles = importerLib.uploadFiles(cfClient, attacks)
+processedAttackFiles = importerLib.waitForFilesProcessing(cfClient, uploadedAttackFiles)
+importerLib.createAttackScenarios(cfClient, processedAttackFiles)
+
+# importerLib.createAttackScenarios(cfClient, uploadedAttacks)

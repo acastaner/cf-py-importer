@@ -1,5 +1,6 @@
 import os
 import json
+import time
 
 
 def getPcapFiles(path):
@@ -12,17 +13,42 @@ def getPcapFiles(path):
             files.append(os.path.abspath(path + os.sep + file))
     return files
 
+def getFilesDetail(cfClient, fileIds):
+    files = []
+    for fileId in fileIds:
+        files.append(cfClient.getFile(fileId))
+    return files
 
 def uploadFiles(cfClient, files):
     uploadedFiles = []
     fileCount = files.__len__()
+    i = 1
     for file in files:
-        i = 1
         print("Uploading file " + str(i) + "/" + str(fileCount))
-        # TODO Check that response is 201
-        uploadedFiles.append(cfClient.uploadFileMultipart(file))
+        response = cfClient.uploadFileMultipart(file)
+        if response.status_code == 201:
+            uploadedFiles.append(response.text)
+            print("\tDone.")
+            i += 1
+        else:
+            print("\tFile failed uploading")
+            i += 1
     return uploadedFiles
 
+def waitForFilesProcessing(cfClient, files):
+    completedFiles = []
+    while files.__len__() > 0:
+        for file in files:
+            fileDetailsResponse = cfClient.getFile(json.loads(file)["id"])
+            if(fileDetailsResponse.status_code == 200):
+                if (json.loads(fileDetailsResponse.text)["status"] == "completed"):
+                    completedFiles.append(fileDetailsResponse.text)
+                    files.remove(file)
+                #else:
+                #    print("file not completed")
+                #    print(json.loads(fileDetailsResponse.text)["status"])            
+        time.sleep(1)
+    return completedFiles
 
 def createAttackScenarios(cfClient, attackScenarios):
     createdScenarios = []
@@ -31,19 +57,14 @@ def createAttackScenarios(cfClient, attackScenarios):
         i = 1
         print("Creating Attack Scenario " + str(i) + "/" +
               str(scenarioScount))
-        # print(scenario)
-        atkId = json.loads(scenario)['id']
-        atkName = 'ATTACK-' + json.loads(scenario)['name']
-        # print(atkId)
-        # print(atkName)
 
-        # Returns an error 422 at the moment, don't know why
         createdScenarioResponse = cfClient.createAttackScenario(
-            atkId, atkName, 'Imported from MassImporter')
+            json.loads(scenario)['id'], 'ATTACK-' + json.loads(scenario)['name'], 'Imported from CyberFlood Importer')
         # print(createdScenarioResponse)
         if createdScenarioResponse.status_code == 201:
-            print("Ok.")
+            print("\tOk.")
             createdScenarios.append(createdScenarioResponse.text)
         else:
-            print("Fail!")
-        return createdScenarios
+            print("\t Fail! API returned error " + str(createdScenarioResponse.status_code))
+        i += 1    
+    return createdScenarios

@@ -15,11 +15,11 @@ class CfClient:
         self.__bearerToken = ""
         self.__isLogged = False
 
-        logging.basicConfig()
-        logging.getLogger().setLevel(logging.DEBUG)
-        requests_log = logging.getLogger("requests.packages.urllib3")
-        requests_log.setLevel(logging.DEBUG)
-        requests_log.propagate = True
+        #logging.basicConfig()
+        #logging.getLogger().setLevel(logging.DEBUG)
+        #requests_log = logging.getLogger("requests.packages.urllib3")
+        #requests_log.setLevel(logging.DEBUG)
+        #requests_log.propagate = True
 
     def login(self):
         response = requests.post(
@@ -35,6 +35,15 @@ class CfClient:
     def isLogged(self):
         return self.__isLogged
 
+    def getFile(self, fileId):
+        response = requests.get(
+            self.controllerAddress + '/files/' + fileId,
+            headers={'Authorization': 'Bearer {0}'.format(self.__bearerToken)
+                     },
+            verify=False,
+        )
+        return response
+
     def uploadFileMultipart(self, filePath):
         files = {'file': open(filePath, "rb")}
         response = requests.post(
@@ -44,7 +53,7 @@ class CfClient:
             files=files,
             verify=False,
         )
-        return response.text
+        return response
 
     def createAttackScenario(self, fileId, name, description):
         assert len(name) <= 50 >= 1
