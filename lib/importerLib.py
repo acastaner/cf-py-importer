@@ -44,9 +44,6 @@ def waitForFilesProcessing(cfClient, files):
                 if (json.loads(fileDetailsResponse.text)["status"] == "completed"):
                     completedFiles.append(fileDetailsResponse.text)
                     files.remove(file)
-                #else:
-                #    print("file not completed")
-                #    print(json.loads(fileDetailsResponse.text)["status"])            
         time.sleep(1)
     return completedFiles
 
@@ -65,6 +62,6 @@ def createAttackScenarios(cfClient, attackScenarios):
             print("\tOk.")
             createdScenarios.append(createdScenarioResponse.text)
         else:
-            print("\t Fail! API returned error " + str(createdScenarioResponse.status_code))
+            print("\tFail! API returned error " + str(createdScenarioResponse.status_code))
         i += 1    
     return createdScenarios

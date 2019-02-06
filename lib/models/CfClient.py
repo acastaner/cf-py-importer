@@ -21,6 +21,24 @@ class CfClient:
         #requests_log.setLevel(logging.DEBUG)
         #requests_log.propagate = True
 
+    def generateToken(self):
+        response = requests.post(
+            self.controllerAddress + '/token',
+            data={'email': self.userName,
+                  'password': self.userPassword},
+            verify=False,
+        )
+        if response.status_code == 201:
+            self.__bearerToken = json.loads(response.text)['token']
+            return self.__bearerToken
+
+    def invalidateToken(self):
+        return requests.delete(
+            self.controllerAddress + '/token',
+            headers={'Authorization': 'Bearer {0}'.format(self.__bearerToken)
+                     },
+        )
+
     def login(self):
         response = requests.post(
             self.controllerAddress + '/token',
@@ -36,13 +54,28 @@ class CfClient:
         return self.__isLogged
 
     def getFile(self, fileId):
-        response = requests.get(
+        return requests.get(
             self.controllerAddress + '/files/' + fileId,
             headers={'Authorization': 'Bearer {0}'.format(self.__bearerToken)
                      },
             verify=False,
         )
-        return response
+    
+    def downloadFile(self, fileId):
+        return requests.get(
+            self.controllerAddress + '/files/' + fileId + '/download',
+            headers={'Authorization': 'Bearer {0}'.format(self.__bearerToken)
+                     },
+            verify=False,
+        )
+
+    def getFiles(self):
+        return requests.get(
+            self.controllerAddress + '/files',
+            headers={'Authorization': 'Bearer {0}'.format(self.__bearerToken)
+                     },
+            verify=False,
+        )
 
     def uploadFileMultipart(self, filePath):
         files = {'file': open(filePath, "rb")}
@@ -54,6 +87,13 @@ class CfClient:
             verify=False,
         )
         return response
+
+    def deleteFile(self, fileId):
+        return requests.delete(
+            self.controllerAddress + '/files' + fileId,
+            headers={'Authorization': 'Bearer {0}'.format(self.__bearerToken)
+                     },
+        )
 
     def createAttackScenario(self, fileId, name, description):
         assert len(name) <= 50 >= 1
