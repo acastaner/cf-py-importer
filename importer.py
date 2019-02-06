@@ -37,11 +37,17 @@ else:
     sys.exit()
 print("Looking for PCAPs to import...")
 attacks = importerLib.getPcapFiles(os.path.join('.', 'content', 'attacks'))
+applications = importerLib.getPcapFiles(
+    os.path.join('.', 'content', 'applications'))
 print("\tAttacks: " + str(attacks.__len__()))
-print("\tApplications: 0")
+print("\tApplications: " + str(applications.__len__()))
 print("\tMalware: 0")
 
 uploadedAttackFiles = importerLib.uploadFiles(cfClient, attacks)
+uploadedApplicationFiles = importerLib.uploadFiles(cfClient, applications)
 processedAttackFiles = importerLib.waitForFilesProcessing(
     cfClient, uploadedAttackFiles)
-#importerLib.createAttackScenarios(cfClient, processedAttackFiles)
+processedApplicationFiles = importerLib.waitForFilesProcessing(
+    cfClient, uploadedApplicationFiles)
+importerLib.createAttackScenarios(cfClient, processedAttackFiles)
+importerLib.createApplicationScenarios(cfClient, processedApplicationFiles)

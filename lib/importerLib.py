@@ -13,11 +13,13 @@ def getPcapFiles(path):
             files.append(os.path.abspath(path + os.sep + file))
     return files
 
+
 def getFilesDetail(cfClient, fileIds):
     files = []
     for fileId in fileIds:
         files.append(cfClient.getFile(fileId))
     return files
+
 
 def uploadFiles(cfClient, files):
     uploadedFiles = []
@@ -35,6 +37,7 @@ def uploadFiles(cfClient, files):
             i += 1
     return uploadedFiles
 
+
 def waitForFilesProcessing(cfClient, files):
     completedFiles = []
     while files.__len__() > 0:
@@ -47,6 +50,7 @@ def waitForFilesProcessing(cfClient, files):
         time.sleep(1)
     return completedFiles
 
+
 def createAttackScenarios(cfClient, attackScenarios):
     createdScenarios = []
     scenarioScount = attackScenarios.__len__()
@@ -57,11 +61,31 @@ def createAttackScenarios(cfClient, attackScenarios):
 
         createdScenarioResponse = cfClient.createAttackScenario(
             json.loads(scenario)['id'], 'ATTACK-' + json.loads(scenario)['name'], 'Imported from CyberFlood Importer')
-        # print(createdScenarioResponse)
         if createdScenarioResponse.status_code == 201:
             print("\tOk.")
             createdScenarios.append(createdScenarioResponse.text)
         else:
-            print("\tFail! API returned error " + str(createdScenarioResponse.status_code))
-        i += 1    
+            print("\tFail! API returned error " +
+                  str(createdScenarioResponse.status_code))
+        i += 1
+    return createdScenarios
+
+
+def createApplicationScenarios(cfClient, applicationScenarios):
+    createdScenarios = []
+    scenarioCount = applicationScenarios.__len__()
+    for application in applicationScenarios:
+        i = 1
+        print("Creating Application Scenario " +
+              str(i) + "/" + str(scenarioCount))
+
+        createdScenarioResponse = cfClient.createApplicationScenario(
+            json.loads(application)['id'], 'APP-' + json.loads(application)['name'], 'Imported from CyberFlood Importer')
+        if createdScenarioResponse.status_code == 201:
+            print("\tOk.")
+            createdScenarios.append(createdScenarioResponse.text)
+        else:
+            print("\tFail! API returned error " +
+                  str(createdScenarioResponse.status_code))
+        i += 1
     return createdScenarios

@@ -17,11 +17,11 @@ class CfClient:
         self.__session = requests.session()
         self.__session.verify = False
 
-        # logging.basicConfig()
-        # logging.getLogger().setLevel(logging.DEBUG)
-        #requests_log = logging.getLogger("requests.packages.urllib3")
-        # requests_log.setLevel(logging.DEBUG)
-        #requests_log.propagate = True
+        logging.basicConfig()
+        logging.getLogger().setLevel(logging.DEBUG)
+        requests_log = logging.getLogger("requests.packages.urllib3")
+        requests_log.setLevel(logging.DEBUG)
+        requests_log.propagate = True
 
     def generateToken(self):
         response = self.__session.post(self.controllerAddress + '/token',
@@ -77,5 +77,18 @@ class CfClient:
             self.controllerAddress + '/scenarios/attacks',
             data={'fileId': fileId, 'name': name,
                   'description': description}
+        )
+        return response
+
+    def createApplicationScenario(self, fileId, name, description):
+        assert len(name) <= 50 >= 1
+        assert len(description) <= 280
+        response = self.__session.post(
+            self.controllerAddress + '/scenarios/apps',
+            data={'fileId': fileId,
+                  'name': name,
+                  'description': description,
+                  'category ': 'Miscellaneous',
+                  'testFile': ''}
         )
         return response
