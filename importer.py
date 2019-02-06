@@ -19,8 +19,6 @@ import os
 # temp
 import json
 
-# TODO: Parse ./data/* and build list of files
-# TODO: Upload each file using the proper flag (attack, malware or app)
 # TODO: Gather each entry's ID by type
 # TODO: Build app/attack/malware profiles with the newly uploaded content
 # TODO: Run a CSA test with these profiles
@@ -31,7 +29,7 @@ cfClient = CfClient(globalSettings["userName"],
                     globalSettings["userPassword"],
                     globalSettings["cfControllerAddress"]
                     )
-cfClient.login()
+cfClient.generateToken()
 if cfClient.isLogged():
     print("success! [" + cfClient.userName + "]")
 else:
@@ -44,7 +42,6 @@ print("\tApplications: 0")
 print("\tMalware: 0")
 
 uploadedAttackFiles = importerLib.uploadFiles(cfClient, attacks)
-processedAttackFiles = importerLib.waitForFilesProcessing(cfClient, uploadedAttackFiles)
-importerLib.createAttackScenarios(cfClient, processedAttackFiles)
-
-# importerLib.createAttackScenarios(cfClient, uploadedAttacks)
+processedAttackFiles = importerLib.waitForFilesProcessing(
+    cfClient, uploadedAttackFiles)
+#importerLib.createAttackScenarios(cfClient, processedAttackFiles)
