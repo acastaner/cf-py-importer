@@ -88,7 +88,7 @@ class CfClient:
             data={'fileId': fileId,
                   'name': name,
                   'description': description,
-                  'category ': 'Miscellaneous',
-                  'testFile': ''}
+                  'category ': 'Miscellaneous'
+                  }
         )
         return response
