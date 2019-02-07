@@ -48,6 +48,7 @@ def waitForFilesProcessing(cfClient, files):
                     completedFiles.append(fileDetailsResponse.text)
                     files.remove(file)
         time.sleep(1)
+    print("All files finished processing.")
     return completedFiles
 
 
@@ -58,7 +59,6 @@ def createAttackScenarios(cfClient, attackScenarios):
         i = 1
         print("Creating Attack Scenario " + str(i) + "/" +
               str(scenarioScount))
-
         createdScenarioResponse = cfClient.createAttackScenario(
             json.loads(scenario)['id'], 'ATTACK-' + json.loads(scenario)['name'], 'Imported from CyberFlood Importer')
         if createdScenarioResponse.status_code == 201:
