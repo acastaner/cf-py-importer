@@ -17,11 +17,11 @@ class CfClient:
         self.__session = requests.session()
         self.__session.verify = False
 
-        logging.basicConfig()
-        logging.getLogger().setLevel(logging.DEBUG)
-        requests_log = logging.getLogger("requests.packages.urllib3")
-        requests_log.setLevel(logging.DEBUG)
-        requests_log.propagate = True
+        # logging.basicConfig()
+        # logging.getLogger().setLevel(logging.DEBUG)
+        ## requests_log = logging.getLogger("requests.packages.urllib3")
+        # requests_log.setLevel(logging.DEBUG)
+        ## requests_log.propagate = True
 
     def generateToken(self):
         response = self.__session.post(self.controllerAddress + '/token',
@@ -88,7 +88,7 @@ class CfClient:
             data={'fileId': fileId,
                   'name': name,
                   'description': description,
-                  'category ': 'Miscellaneous'
+                  'category': 'Miscellaneous'
                   }
         )
         return response
