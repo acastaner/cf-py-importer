@@ -60,7 +60,7 @@ def createAttackScenarios(cfClient, attackScenarios):
         print("Creating Attack Scenario " + str(i) + "/" +
               str(scenarioScount))
         createdScenarioResponse = cfClient.createAttackScenario(
-            json.loads(scenario)['id'], 'ATTACK-' + json.loads(scenario)['name'], 'Imported from CyberFlood Importer')
+            json.loads(scenario)['id'], 'ATTACK-' + json.loads(scenario)['name'], 'Imported Attack Scenario')
         if createdScenarioResponse.status_code == 201:
             print("\tOk.")
             createdScenarios.append(createdScenarioResponse.text)
@@ -80,12 +80,17 @@ def createApplicationScenarios(cfClient, applicationScenarios):
               str(i) + "/" + str(scenarioCount))
 
         createdScenarioResponse = cfClient.createApplicationScenario(
-            json.loads(application)['id'], 'APP-' + json.loads(application)['name'], 'Imported from CyberFlood Importer')
+            json.loads(application)['id'],
+            'APP-' + json.loads(application)['name'],
+            'Imported Application Scenario')
         if createdScenarioResponse.status_code == 201:
             print("\tOk.")
             createdScenarios.append(createdScenarioResponse.text)
         else:
-            print("\tFail! API returned error " +
-                  str(createdScenarioResponse.status_code))
+            print("\tFail! API returned error "
+                  + str(createdScenarioResponse.status_code)
+                  + ": "
+                  + str(createdScenarioResponse.content)
+                  )
         i += 1
     return createdScenarios
