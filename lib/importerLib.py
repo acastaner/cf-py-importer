@@ -5,12 +5,15 @@ import time
 
 def getPcapFiles(path):
     files = []
-    if os.path.exists(path) != True:
+    absPath = os.path.abspath(path + os.sep)
+    if os.path.exists(absPath) != True:
         print("Provided path is missing, canceling.")
         exit
     for file in os.listdir(path):
         if file.endswith(".pcap"):
-            files.append(os.path.abspath(path + os.sep + file))
+            dstFileName = file.replace("-", ".") # API won't accept dashes, so swapping those with a dot like the CF GUI does
+            os.rename(absPath + file, absPath + dstFileName)
+            files.append(absPath + dstFileName)
     return files
 
 
@@ -27,13 +30,16 @@ def uploadFiles(cfClient, files):
     i = 1
     for file in files:
         print("Uploading file " + str(i) + "/" + str(fileCount))
+        print(file)
         response = cfClient.uploadFileMultipart(file)
         if response.status_code == 201:
             uploadedFiles.append(response.text)
             print("\tDone.")
+            os.rename(file, file.replace("to_process", "processed"))
             i += 1
         else:
             print("\tFile failed uploading")
+            os.rename(file, file.replace("to_process", "failed_import"))
             i += 1
     return uploadedFiles
 
@@ -66,7 +72,10 @@ def createAttackScenarios(cfClient, attackScenarios):
             createdScenarios.append(createdScenarioResponse.text)
         else:
             print("\tFail! API returned error " +
-                  str(createdScenarioResponse.status_code))
+                  str(createdScenarioResponse.status_code)
+                  + ": "
+                  + str(createdScenarioResponse.content)
+                  )
         i += 1
     return createdScenarios
 

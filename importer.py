@@ -36,9 +36,9 @@ else:
     print("error! Please check your configuration.")
     sys.exit()
 print("Looking for PCAPs to import...")
-attacks = importerLib.getPcapFiles(os.path.join('.', 'content', 'attacks'))
+attacks = importerLib.getPcapFiles(os.path.join('.', 'content', 'to_process', 'attacks'))
 applications = importerLib.getPcapFiles(
-    os.path.join('.', 'content', 'applications'))
+    os.path.join('.', 'content', 'processed', 'applications'))
 print("\tAttacks: " + str(attacks.__len__()))
 print("\tApplications: " + str(applications.__len__()))
 print("\tMalware: 0")
