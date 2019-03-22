@@ -2,6 +2,7 @@ import os
 import json
 import time
 from lib.models.Scenario import Scenario, ScenarioType
+import time
 
 
 def getPcapFiles(path, scenarioType):
@@ -10,12 +11,12 @@ def getPcapFiles(path, scenarioType):
     if os.path.exists(absPath) != True:
         print("Provided path is missing, canceling.")
         exit
-    for file in os.listdir(path):
-        
+    for file in os.listdir(path):        
         if file.endswith(".pcap"):
             scenario = Scenario()
             dstFileName = file.replace("-", ".") # API won't accept dashes, so swapping those with a dot like the CF GUI does
-            os.rename(absPath + file, absPath + dstFileName)
+            if (os.path.exists(absPath + dstFileName) != True):
+                os.rename(absPath + file, absPath + dstFileName)
             scenario.setSourceFilePath(absPath + dstFileName)
             scenario.setScenarioTypeFromEnum(scenarioType)
             scenarios.append(scenario)
@@ -42,7 +43,6 @@ def createScenario(cfClient, scenario):
     completed = False
     count = 1
     print("\tWaiting for file processing... ", end="")
-    print(str(count) + "... ", end="")
     time.sleep(1)
     while completed != True:    
         if count >= 11: 
@@ -55,6 +55,8 @@ def createScenario(cfClient, scenario):
                     print("Done.")
                     completed = True        
         count += 1
+    if (scenario.sourceFileUploaded == False):
+        moveFailedImportFile(scenario.sourceFilePath)
     # Create actual scenario
     print("\tCreating scenario... ", end="")
     if (scenario.scenarioType.name == "ATTACK"):
@@ -65,14 +67,22 @@ def createScenario(cfClient, scenario):
         # TODO
     else:
         print("Scenario type not defined, cancelling")
+        moveFailedImportFile(scenario.sourceFilePath)
+        scenario.scenarioCreated = False
         return scenario
+
+    if (scenario.scenarioCreated == True):
+        moveSuccessImportFile(scenario.sourceFilePath)
+    else:
+        moveFailedImportFile(scenario.sourceFilePath)
+    
     return scenario
 
 def createScenarios(cfClient, scenarios):
     scenarioScount = scenarios.__len__()
     createdScenarios = []
+    i = 1
     for scenario in scenarios:
-        i = 1
         print("Creating scenario " + str(i) + "/" + str(scenarioScount))
         createdScenario = createScenario(cfClient, scenario)
         createdScenarios.append(createdScenario)
@@ -110,7 +120,7 @@ def moveSuccessImportFile(path):
 
 def createAttackScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createAttackScenario(
-        scenario.sourceFileId, 'ATTACK-' + scenario.sourceFileName, 'Imported Attack Scenario')
+        scenario.sourceFileId, scenario.sourceFileName, 'Imported Attack Scenario')
     if createdScenarioResponse.status_code == 201:
         print("Done.")
         scenario.setScenarioId(json.loads(createdScenarioResponse.text)['id'])
@@ -122,7 +132,6 @@ def createAttackScenario(cfClient, scenario):
                   + str(createdScenarioResponse.content)
                   )
         scenario.scenarioCreated = False
-    print(vars(scenario))
     return scenario
 
 def createApplicationScenarios(cfClient, applicationScenarios):
