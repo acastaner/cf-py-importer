@@ -12,6 +12,7 @@
 from config import *
 from lib.models.CfClient import CfClient
 from lib import importerLib
+from lib.models.Scenario import Scenario, ScenarioType
 
 import sys
 import os
@@ -36,18 +37,20 @@ else:
     print("error! Please check your configuration.")
     sys.exit()
 print("Looking for PCAPs to import...")
-attacks = importerLib.getPcapFiles(os.path.join('.', 'content', 'to_process', 'attacks'))
+attacks = importerLib.getPcapFiles(os.path.join('.', 'content', 'to_process', 'attacks'), ScenarioType.ATTACK)
 applications = importerLib.getPcapFiles(
-    os.path.join('.', 'content', 'processed', 'applications'))
+    os.path.join('.', 'content', 'processed', 'applications'), ScenarioType.APPLICATION)
 print("\tAttacks: " + str(attacks.__len__()))
 print("\tApplications: " + str(applications.__len__()))
 print("\tMalware: 0")
 
-uploadedAttackFiles = importerLib.uploadFiles(cfClient, attacks)
-uploadedApplicationFiles = importerLib.uploadFiles(cfClient, applications)
-processedAttackFiles = importerLib.waitForFilesProcessing(
-    cfClient, uploadedAttackFiles)
-processedApplicationFiles = importerLib.waitForFilesProcessing(
-    cfClient, uploadedApplicationFiles)
-importerLib.createAttackScenarios(cfClient, processedAttackFiles)
-importerLib.createApplicationScenarios(cfClient, processedApplicationFiles)
+createdAttackScenarios = importerLib.createScenarios(cfClient, attacks)
+print("Created " + str(createdAttackScenarios.__len__()) + " scenarios.")
+
+
+#uploadedAttackFiles = importerLib.uploadFiles(cfClient, attacks)
+#uploadedApplicationFiles = importerLib.uploadFiles(cfClient, applications)
+#processedAttackFiles = importerLib.waitForFilesProcessing(cfClient, uploadedAttackFiles)
+#processedApplicationFiles = importerLib.waitForFilesProcessing(cfClient, uploadedApplicationFiles)
+#importerLib.createAttackScenarios(cfClient, processedAttackFiles)
+#importerLib.createApplicationScenarios(cfClient, processedApplicationFiles)

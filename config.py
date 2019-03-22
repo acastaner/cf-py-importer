@@ -4,7 +4,7 @@
 
 globalSettings = {
     # FQDN or IP address of the CyberFlood Controller. Do NOT prefix with https://
-    "cfControllerAddress": "10.75.231.9",
+    "cfControllerAddress": "10.75.231.30",
     "userName": "arnaud.castaner@spirent.com",
     "userPassword": "spirent12!",
     # Should the script delete the PCAPs once completed? If not, they'll be moved to the ./data_processed directories
