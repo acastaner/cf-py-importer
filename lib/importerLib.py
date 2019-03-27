@@ -117,21 +117,23 @@ def cleanUpScenarios(cfClient, scenarios):
     return sanitizedList
 
 def moveFailedImportFile(path):
-    try:
-        os.rename(path, path.replace(
-            "to_process", "failed_import"))
-    except:
-        print("\tError moving file after failed import: ")
-        print("\t\t" + path)
+    if(os.path.exists(path) == True):
+        try:
+            os.rename(path, path.replace(
+                "to_process", "failed_import"))
+        except:
+            print("\tError moving file after failed import: ")
+            print("\t\t" + path)
 
 def moveSuccessImportFile(path):
-    try:
-        os.rename(path, path.replace(
-            "to_process", "processed"))
-    except:
-        print("\tError moving file after successful import: ")
-        print("\t\t" + path)
-            
+    if(os.path.exists(path) == True):
+        try:
+            os.rename(path, path.replace(
+                "to_process", "processed"))
+        except:
+            print("\tError moving file after successful import: ")
+            print("\t\t" + path)
+
 def createAttackScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createAttackScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Attack Scenario')
