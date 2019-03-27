@@ -14,15 +14,19 @@ def getPcapFiles(path, scenarioType):
     for file in os.listdir(path):        
         if file.endswith(".pcap"):
             scenario = Scenario()
-            dstFileName = file.replace("-", ".") # API won't accept dashes, so swapping those with a dot like the CF GUI does
+            dstFileName = file.replace("-", ".")  # API won't accept dashes, so swapping those with a dot like the CF GUI does
+            sourcePath = absPath + file
+            dstPath = absPath + dstFileName
             try:
-                if (os.path.exists(absPath + dstFileName) != True):
-                    os.rename(absPath + file, absPath + dstFileName)
-                scenario.setSourceFilePath(absPath + dstFileName)
+                if (os.path.exists(dstPath) != True):
+                    os.rename(sourcePath, dstPath)
+                scenario.setSourceFilePath(dstPath)
                 scenario.setScenarioTypeFromEnum(scenarioType)
                 scenarios.append(scenario)
             except:
                 print("\tError handling file " + file + ", skipping.")
+                print("\t\tSource file: " + sourcePath)
+                print("\t\tDestination file: " + dstPath)
     return scenarios
 
 def uploadFile(cfClient, scenario):
