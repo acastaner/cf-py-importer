@@ -42,6 +42,9 @@ def uploadFile(cfClient, scenario):
 def createScenario(cfClient, scenario):
     scenario = uploadFile(cfClient, scenario)
 
+    if (scenario.sourceFileUploaded != True):
+        return scenario
+
     # Wait up to 10 secs for file processing to complete
     completed = False
     count = 1
