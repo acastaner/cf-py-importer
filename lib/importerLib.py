@@ -125,9 +125,13 @@ def moveFailedImportFile(path):
         print("\t\t" + path)
 
 def moveSuccessImportFile(path):
-    os.rename(path, path.replace(
-        "to_process", "processed"))
-
+    try:
+        os.rename(path, path.replace(
+            "to_process", "processed"))
+    except:
+        print("\tError moving file after successful import: ")
+        print("\t\t" + path)
+            
 def createAttackScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createAttackScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Attack Scenario')
