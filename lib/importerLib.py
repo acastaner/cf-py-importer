@@ -15,11 +15,14 @@ def getPcapFiles(path, scenarioType):
         if file.endswith(".pcap"):
             scenario = Scenario()
             dstFileName = file.replace("-", ".") # API won't accept dashes, so swapping those with a dot like the CF GUI does
-            if (os.path.exists(absPath + dstFileName) != True):
-                os.rename(absPath + file, absPath + dstFileName)
-            scenario.setSourceFilePath(absPath + dstFileName)
-            scenario.setScenarioTypeFromEnum(scenarioType)
-            scenarios.append(scenario)
+            try:
+                if (os.path.exists(absPath + dstFileName) != True):
+                    os.rename(absPath + file, absPath + dstFileName)
+                scenario.setSourceFilePath(absPath + dstFileName)
+                scenario.setScenarioTypeFromEnum(scenarioType)
+                scenarios.append(scenario)
+            except:
+                print("\tError handling file " + file + ", skipping.")
     return scenarios
 
 def uploadFile(cfClient, scenario):
@@ -111,8 +114,12 @@ def cleanUpScenarios(cfClient, scenarios):
     return sanitizedList
 
 def moveFailedImportFile(path):
-    os.rename(path, path.replace(
-        "to_process", "failed_import"))
+    try:
+        os.rename(path, path.replace(
+            "to_process", "failed_import"))
+    except:
+        print("\tError moving file after failed import: ")
+        print("\t\t" + path)
 
 def moveSuccessImportFile(path):
     os.rename(path, path.replace(
