@@ -8,6 +8,7 @@ import time
 def getPcapFiles(path, scenarioType):
     scenarios = []
     absPath = os.path.abspath(path + os.sep)
+    print("os separator --> " + os.sep + " <--")
     if os.path.exists(absPath) != True:
         print("Provided path is missing, canceling.")
         exit
@@ -15,8 +16,8 @@ def getPcapFiles(path, scenarioType):
         if file.endswith(".pcap"):
             scenario = Scenario()
             dstFileName = file.replace("-", ".")  # API won't accept dashes, so swapping those with a dot like the CF GUI does
-            sourcePath = absPath + file
-            dstPath = absPath + dstFileName
+            sourcePath = absPath + os.sep + file
+            dstPath = absPath + os.sep + dstFileName
             try:
                 if (os.path.exists(dstPath) != True):
                     os.rename(sourcePath, dstPath)
