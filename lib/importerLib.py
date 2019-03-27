@@ -8,7 +8,6 @@ import time
 def getPcapFiles(path, scenarioType):
     scenarios = []
     absPath = os.path.abspath(path + os.sep)
-    print("os separator --> " + os.sep + " <--")
     if os.path.exists(absPath) != True:
         print("Provided path is missing, canceling.")
         exit
