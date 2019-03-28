@@ -12,7 +12,7 @@ def getPcapFiles(path, scenarioType):
         print("Provided path is missing, canceling.")
         exit
     for file in os.listdir(path):        
-        if file.endswith(".pcap"):
+        if file.endswith(".pcap") or file.endswith(".har"):
             scenario = Scenario()
             dstFileName = file.replace("-", ".")  # API won't accept dashes, so swapping those with a dot like the CF GUI does
             sourcePath = absPath + os.sep + file
@@ -61,7 +61,7 @@ def createScenario(cfClient, scenario):
             return scenario
         fileDetailsResponse = cfClient.getFile(scenario.sourceFileId)
         if(fileDetailsResponse.status_code == 200):
-                if (json.loads(fileDetailsResponse.text)["status"] == "completed"):
+                if (json.loads(fileDetailsResponse.text)["completed"] == True):
                     print("Done.")
                     completed = True        
         count += 1
@@ -71,8 +71,8 @@ def createScenario(cfClient, scenario):
     print("\tCreating scenario... ", end="")
     if (scenario.scenarioType.name == "ATTACK"):
         scenario = createAttackScenario(cfClient, scenario)
-    #elif (scenario.scenarioType == ScenarioType.APPLICATION):
-        # TODO
+    elif (scenario.scenarioType.name == "APPLICATION"):
+        scenario = createApplicationScenario(cfClient, scenario)
     #elif (scenario.scenarioType == ScenarioType.MALWARE):
         # TODO
     else:
@@ -98,7 +98,6 @@ def createScenarios(cfClient, scenarios):
         createdScenarios.append(createdScenario)
         i += 1
     createdScenarios = cleanUpScenarios(cfClient, createdScenarios)
-    # TODO: If file uploaded but scenario not created, delete file
     # TODO: Maybe log failures
     return createdScenarios
 
@@ -141,18 +140,30 @@ def moveSuccessImportFile(path):
 def createAttackScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createAttackScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Attack Scenario')
+    
+    return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
+
+def createApplicationScenario(cfClient, scenario):
+    createdScenarioResponse = cfClient.createApplicationScenario(
+        scenario.sourceFileId, scenario.sourceFileName, 'Imported Application Scenario'
+    )
+    
+    return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
+
+def handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario):
     if createdScenarioResponse.status_code == 201:
         print("Done.")
         scenario.setScenarioId(json.loads(createdScenarioResponse.text)['id'])
         scenario.scenarioCreated = True
     else:
         print("\tFail! API returned error " +
-                  str(createdScenarioResponse.status_code)
-                  + ": "
-                  + str(createdScenarioResponse.content)
-                  )
+              str(createdScenarioResponse.status_code)
+              + ": "
+              + str(createdScenarioResponse.content)
+              )
         scenario.scenarioCreated = False
     return scenario
+
 
 def createApplicationScenarios(cfClient, applicationScenarios):
     createdScenarios = []
