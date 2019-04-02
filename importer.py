@@ -10,17 +10,14 @@
 # This program is NOT officially supported by Spirent
 
 from config import *
-#from lib.models.CfClient import CfClient
+from lib.models.CfClient import CfClient
 from lib import importerLib
 from lib.models.Scenario import Scenario, ScenarioType
 
 import sys
 import os
 
-import cyberfloodClient
-
-# temp
-import json
+#import cyberfloodClient
 
 # TODO: Gather each entry's ID by type
 # TODO: Build app/attack/malware profiles with the newly uploaded content
@@ -28,7 +25,7 @@ import json
 
 print("Welcome to the CyberFlood Mass PCAP Importer!")
 print("Checking for connectivity & credentials...", end=" ")
-cfClient = cyberfloodClient.CfClient(globalSettings["userName"],
+cfClient = CfClient(globalSettings["userName"],
                                      globalSettings["userPassword"],
                                      globalSettings["cfControllerAddress"]
                                      )
@@ -48,4 +45,7 @@ print("\tApplications: " + str(applications.__len__()))
 print("\tMalware: 0")
 
 createdAttackScenarios = importerLib.createScenarios(cfClient, attacks)
+if createdAttackScenarios.__len__() > 0:
+    attackScenarioIds = importerLib.getScenarioIds(createdAttackScenarios)
+    importerLib.createAttackProfile(cfClient, attackScenarioIds)
 print("Created " + str(createdAttackScenarios.__len__()) + " scenarios.")

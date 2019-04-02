@@ -70,6 +70,24 @@ class CfClient:
             self.controllerAddress + '/files' + fileId
         )
 
+    def listAttackProfiles(self):
+        return self.__session.get(
+            self.controllerAddress + '/profiles/attacks'
+        )
+
+    def createAttackProfile(self, name, description, scenarioIds):
+        print(scenarioIds)
+        response = self.__session.post(
+            self.controllerAddress + '/profiles/attacks',
+            json={
+                'name': name,
+                'description': description,
+                'scenarios': scenarioIds,
+                'scenarioTypes': ['attack']
+            }
+        )
+        return response
+
     def createAttackScenario(self, fileId, name, description):
         assert len(name) <= 50 >= 1
         assert len(description) <= 280

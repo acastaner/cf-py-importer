@@ -81,19 +81,37 @@ def createScenario(cfClient, scenario):
         scenario.scenarioCreated = False
         return scenario
 
-    if (scenario.scenarioCreated == True):
+    if scenario.scenarioCreated:
         moveSuccessImportFile(scenario.sourceFilePath)
     else:
         moveFailedImportFile(scenario.sourceFilePath)
     
     return scenario
 
+def getScenarioIds(scenarios):
+    scenarioIds = []
+    for scenario in scenarios:
+        entry = {'id': scenario.scenarioId}
+        scenarioIds.append(entry)
+    return scenarioIds
+
+def createAttackProfile(cfClient, scenarioIds):
+    date = time.strftime("%c", time.localtime())
+    name = "Attacks - " + date
+    description = "Attacks automatically imported on " + date
+    createAttackProfileResponse = cfClient.createAttackProfile(name, description, scenarioIds)
+    if createAttackProfileResponse.status_code == 201:
+        print("Created Attack Profile: " + name)
+    else:
+        print("Error creating Attack Profile: " + name)
+        print(str(createAttackProfileResponse.content))
+
 def createScenarios(cfClient, scenarios):
-    scenarioScount = scenarios.__len__()
+    scenariosCount = scenarios.__len__()
     createdScenarios = []
     i = 1
     for scenario in scenarios:
-        print("Creating scenario " + str(i) + "/" + str(scenarioScount))
+        print("Creating scenario " + str(i) + "/" + str(scenariosCount))
         createdScenario = createScenario(cfClient, scenario)
         createdScenarios.append(createdScenario)
         i += 1
