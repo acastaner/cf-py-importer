@@ -76,7 +76,6 @@ class CfClient:
         )
 
     def createAttackProfile(self, name, description, scenarioIds):
-        print(scenarioIds)
         response = self.__session.post(
             self.controllerAddress + '/profiles/attacks',
             json={
