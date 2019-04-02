@@ -3,9 +3,9 @@ Python script used to import a (more or less) large amount of application, attac
 
 # Installation
 * Install Python 3.x
-* Install the `requests` package from pip
+* Install the `cyberfloodClient` package from pip
 
-  `pip install requests`
+  `pip install cyberfloodClient`
   
  Put the PCAPs to be imported into \content\to_process\<subdirectory>. The scenarios will be created based on the subdirectory name : attacks, application or malware.
  
