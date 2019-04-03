@@ -87,9 +87,25 @@ class CfClient:
         )
         return response
 
+    def createApplicationProfile(self, name, description, scenarioIds):
+        response = self.__session.post(
+            self.controllerAddress + '/profiles/attacks',
+            json={
+                'name': name,
+                'description': description,
+                'category': 'Miscellaneous',
+                'scenarios': scenarioIds,
+                 'scenarioTypes': ['app']
+                }
+        )
+        return response
+
+    def listApplicationProfiles(self):
+        return self.__session.get(
+            self.controllerAddress + '/profiles/apps'
+        )
+
     def createAttackScenario(self, fileId, name, description):
-        assert len(name) <= 50 >= 1
-        assert len(description) <= 280
         response = self.__session.post(
             self.controllerAddress + '/scenarios/attacks',
             data={'fileId': fileId, 'name': name,
@@ -98,8 +114,6 @@ class CfClient:
         return response
 
     def createApplicationScenario(self, fileId, name, description):
-        assert len(name) <= 50 >= 1
-        assert len(description) <= 280
         response = self.__session.post(
             self.controllerAddress + '/scenarios/apps',
             data={'fileId': fileId,

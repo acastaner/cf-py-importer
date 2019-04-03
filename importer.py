@@ -39,7 +39,7 @@ print("Looking for PCAPs to import...")
 attacks = importerLib.getPcapFiles(os.path.join(
     '.', 'content', 'to_process', 'attacks'), ScenarioType.ATTACK)
 applications = importerLib.getPcapFiles(
-    os.path.join('.', 'content', 'processed', 'applications'), ScenarioType.APPLICATION)
+    os.path.join('.', 'content', 'to_process', 'applications'), ScenarioType.APPLICATION)
 print("\tAttacks: " + str(attacks.__len__()))
 print("\tApplications: " + str(applications.__len__()))
 print("\tMalware: 0")
@@ -49,3 +49,10 @@ if createdAttackScenarios.__len__() > 0:
     attackScenarioIds = importerLib.getScenarioIds(createdAttackScenarios)
     importerLib.createAttackProfile(cfClient, attackScenarioIds)
 print("Created " + str(createdAttackScenarios.__len__()) + " scenarios.")
+
+createdApplicationScenarios = importerLib.createScenarios(
+    cfClient, applications)
+if createdApplicationScenarios.__len__() > 0:
+    applicationScenarioIds = importerLib.getScenarioIds(createdApplicationScenarios)
+    importerLib.createApplicationProfile(cfClient, applicationScenarioIds)
+print("Created " + str(createdApplicationScenarios.__len__()) + " scenarios.")

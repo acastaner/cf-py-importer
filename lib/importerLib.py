@@ -84,8 +84,7 @@ def createScenario(cfClient, scenario):
     if scenario.scenarioCreated:
         moveSuccessImportFile(scenario.sourceFilePath)
     else:
-        moveFailedImportFile(scenario.sourceFilePath)
-    
+        moveFailedImportFile(scenario.sourceFilePath)    
     return scenario
 
 def getScenarioIds(scenarios):
@@ -105,6 +104,17 @@ def createAttackProfile(cfClient, scenarioIds):
     else:
         print("Error creating Attack Profile: " + name)
         print(str(createAttackProfileResponse.content))
+
+def createApplicationProfile(cfClient, scenarioIds):
+    date = time.strftime("%c", time.localtime())
+    name = "Applications - " + date
+    description = "Applications automatically imported on " + date
+    createApplicationProfile = cfClient.createApplicationProfile(name, description, scenarioIds)
+    if createApplicationProfile.status_code == 201:
+        print("Created Application Profile: " + name)
+    else:
+        print("Error creating Application Profile: " + name)
+        print(str(createApplicationProfile.content))
 
 def createScenarios(cfClient, scenarios):
     scenariosCount = scenarios.__len__()
@@ -164,8 +174,7 @@ def createAttackScenario(cfClient, scenario):
 def createApplicationScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createApplicationScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Application Scenario'
-    )
-    
+    )    
     return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
 
 def handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario):
@@ -181,7 +190,6 @@ def handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario):
               )
         scenario.scenarioCreated = False
     return scenario
-
 
 def createApplicationScenarios(cfClient, applicationScenarios):
     createdScenarios = []
