@@ -53,8 +53,7 @@ def createScenario(cfClient, scenario):
     completed = False
     count = 1
     print("\tWaiting for file processing... ", end="")
-    time.sleep(1)
-    while completed != True:    
+    while completed != True:
         if count >= 11: 
             completed = True  # We waited 10 seconds, if not completed yet, we won't attempt to create the scenario
             print("\tFile processing timed out, exiting.")
@@ -63,7 +62,8 @@ def createScenario(cfClient, scenario):
         if(fileDetailsResponse.status_code == 200):
                 if (json.loads(fileDetailsResponse.text)["completed"] == True):
                     print("Done.")
-                    completed = True        
+                    completed = True
+        time.sleep(1)
         count += 1
     if (scenario.sourceFileUploaded == False):
         moveFailedImportFile(scenario.sourceFilePath)
