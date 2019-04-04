@@ -89,7 +89,7 @@ class CfClient:
 
     def createApplicationProfile(self, name, description, scenarioIds):
         response = self.__session.post(
-            self.controllerAddress + '/profiles/attacks',
+            self.controllerAddress + '/profiles/apps',
             json={
                 'name': name,
                 'description': description,
