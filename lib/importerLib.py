@@ -73,8 +73,8 @@ def createScenario(cfClient, scenario):
         scenario = createAttackScenario(cfClient, scenario)
     elif (scenario.scenarioType.name == "APPLICATION"):
         scenario = createApplicationScenario(cfClient, scenario)
-    #elif (scenario.scenarioType == ScenarioType.MALWARE):
-        # TODO
+    elif (scenario.scenarioType == ScenarioType.MALWARE):
+        scenario = createMalwareScenario(cfClient, scenario)
     else:
         print("Scenario type not defined, cancelling")
         moveFailedImportFile(scenario.sourceFilePath)
@@ -130,7 +130,7 @@ def createScenarios(cfClient, scenarios):
     return createdScenarios
 
 def cleanUpScenarios(cfClient, scenarios):
-    print("Cleaning up scenarios.")
+    print("\tCleaning up scenarios.")
     sanitizedList = []
     for scenario in scenarios:
         if scenario.sourceFileUploaded == True and scenario.scenarioCreated == True:
@@ -140,7 +140,7 @@ def cleanUpScenarios(cfClient, scenarios):
             response = cfClient.deleteFile(scenario.sourceFileId)
             moveFailedImportFile(scenario.sourceFilePath)
             if (response.status_code == 201):
-                print("\tUnused file deleted from Controller.")
+                print("\t\tUnused file deleted from Controller.")
         elif (scenario.sourceFileUploaded == False and os.path.exists(scenario.sourceFilePath)):
             moveFailedImportFile(scenario.sourceFilePath)
     cleaned = scenarios.__len__() - sanitizedList.__len__()
@@ -153,7 +153,7 @@ def moveFailedImportFile(path):
             os.rename(path, path.replace(
                 "to_process", "failed_import"))
         except:
-            print("\tError moving file after failed import: ")
+            print("\t\tError moving file after failed import: ")
             print("\t\t" + path)
 
 def moveSuccessImportFile(path):
@@ -162,7 +162,7 @@ def moveSuccessImportFile(path):
             os.rename(path, path.replace(
                 "to_process", "processed"))
         except:
-            print("\tError moving file after successful import: ")
+            print("\t\tError moving file after successful import: ")
             print("\t\t" + path)
 
 def createAttackScenario(cfClient, scenario):
@@ -175,6 +175,12 @@ def createApplicationScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createApplicationScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Application Scenario'
     )    
+    return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
+
+def createMalwareScenario(cfClient, scenario):
+    createdScenarioResponse = cfClient.createMalwareScenario(
+        scenario.sourceFileId, scenario.sourceFileName, 'Imported Malware Scenario'
+    )
     return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
 
 def handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario):

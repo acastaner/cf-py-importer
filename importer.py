@@ -10,17 +10,14 @@
 # This program is NOT officially supported by Spirent
 
 from config import *
-from lib.models.CfClient import CfClient
 from lib import importerLib
-from lib.models.Scenario import Scenario, ScenarioType
+from lib.models.Scenario import ScenarioType
 
 import sys
 import os
 
-#import cyberfloodClient
+from cyberfloodClient import CfClient
 
-# TODO: Gather each entry's ID by type
-# TODO: Build app/attack/malware profiles with the newly uploaded content
 # TODO: Run a CSA test with these profiles
 
 print("Welcome to the CyberFlood Mass PCAP Importer!")
@@ -29,6 +26,8 @@ cfClient = CfClient(globalSettings["userName"],
                                      globalSettings["userPassword"],
                                      globalSettings["cfControllerAddress"]
                                      )
+
+# Authentication
 cfClient.generateToken()
 if cfClient.isLogged():
     print("success! [" + cfClient.userName + "]")
@@ -36,23 +35,36 @@ else:
     print("error! Please check your configuration.")
     sys.exit()
 print("Looking for PCAPs to import...")
+
+# Gathering files
 attacks = importerLib.getPcapFiles(os.path.join(
     '.', 'content', 'to_process', 'attacks'), ScenarioType.ATTACK)
 applications = importerLib.getPcapFiles(
     os.path.join('.', 'content', 'to_process', 'applications'), ScenarioType.APPLICATION)
+
+malwares = importerLib.getPcapFiles(
+    os.path.join('.', 'content', 'to_process', 'malwares'), ScenarioType.MALWARE)
 print("\tAttacks: " + str(attacks.__len__()))
 print("\tApplications: " + str(applications.__len__()))
-print("\tMalware: 0")
+print("\tMalware: " + str(malwares.__len__()))
 
+## Scenarios & Profiles creation
+# Attacks #
 createdAttackScenarios = importerLib.createScenarios(cfClient, attacks)
 if createdAttackScenarios.__len__() > 0:
     attackScenarioIds = importerLib.getScenarioIds(createdAttackScenarios)
     importerLib.createAttackProfile(cfClient, attackScenarioIds)
-print("Created " + str(createdAttackScenarios.__len__()) + " scenarios.")
+print("Created " + str(createdAttackScenarios.__len__()) + " attack scenarios.")
 
+# Applications #
 createdApplicationScenarios = importerLib.createScenarios(
     cfClient, applications)
 if createdApplicationScenarios.__len__() > 0:
     applicationScenarioIds = importerLib.getScenarioIds(createdApplicationScenarios)
     importerLib.createApplicationProfile(cfClient, applicationScenarioIds)
-print("Created " + str(createdApplicationScenarios.__len__()) + " scenarios.")
+
+# Malwares #
+createdMalwareScenarios = importerLib.createScenarios(
+    cfClient, malwares)
+
+print("Created " + str(createdMalwareScenarios.__len__()) + " malware scenarios.")
