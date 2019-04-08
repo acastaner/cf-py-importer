@@ -116,6 +116,18 @@ def createApplicationProfile(cfClient, scenarioIds):
         print("Error creating Application Profile: " + name)
         print(str(createApplicationProfile.content))
 
+def createMalwareProfile(cfClient, scenarioIds):
+    date = time.strftime("%c", time.localtime())
+    name = "Malwares - " + date
+    description = "Malwares automatically imported on " + date
+    createMalwareProfile = cfClient.createMalwareProfile(name, description, scenarioIds)
+    if createMalwareProfile.status_code == 201:
+        print("Created Malware Profile: " + name)
+    else:
+        print("Error creating Malware Profile: " + name)
+        print(str(createMalwareProfile.content))
+
+
 def createScenarios(cfClient, scenarios):
     scenariosCount = scenarios.__len__()
     createdScenarios = []

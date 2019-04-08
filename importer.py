@@ -62,9 +62,13 @@ createdApplicationScenarios = importerLib.createScenarios(
 if createdApplicationScenarios.__len__() > 0:
     applicationScenarioIds = importerLib.getScenarioIds(createdApplicationScenarios)
     importerLib.createApplicationProfile(cfClient, applicationScenarioIds)
+print("Created " + str(createdApplicationScenarios.__len__()) + " application scenarios.")
 
 # Malwares #
 createdMalwareScenarios = importerLib.createScenarios(
     cfClient, malwares)
+if createdMalwareScenarios.__len__() > 0:
+    malwareScenarioIds = importerLib.getScenarioIds(createdMalwareScenarios)
+    importerLib.createMalwareProfile(cfClient, malwareScenarioIds)
 
 print("Created " + str(createdMalwareScenarios.__len__()) + " malware scenarios.")
