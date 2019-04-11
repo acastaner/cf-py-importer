@@ -14,7 +14,11 @@ def getPcapFiles(path, scenarioType):
     for file in os.listdir(path):        
         if file.endswith(".pcap") or file.endswith(".har"):
             scenario = Scenario()
-            dstFileName = file.replace("-", ".")  # API won't accept dashes, so swapping those with a dot like the CF GUI does
+            # API won't accept some characters, so swapping those with a dot like the CF GUI does
+            dstFileName = file.replace("-", ".")
+            dstFileName = file.replace("^", ".")
+            dstFileName = file.replace("+", ".")
+            dstFileName = file.replace("$", ".")
             sourcePath = absPath + os.sep + file
             dstPath = absPath + os.sep + dstFileName
             try:
