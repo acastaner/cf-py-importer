@@ -13,6 +13,11 @@ def getPcapFiles(path, scenarioType):
         exit
     for file in os.listdir(path):        
         if file.endswith(".pcap") or file.endswith(".har"):
+            if file.__len__() > 50:
+                print("\tERROR: File name is too long.")
+                print("\tPlease make it less than 50 characters and try again.")
+                print("\tCulprit: " + path + os.sep + file)
+                break
             scenario = Scenario()
             # API won't accept some characters, so swapping those with a dot like the CF GUI does
             dstFileName = file.replace("-", ".")
