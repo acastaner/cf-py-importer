@@ -3,6 +3,7 @@ import json
 import time
 from lib.models.Scenario import Scenario, ScenarioType
 import time
+import sys
 
 
 def getPcapFiles(path, scenarioType):
@@ -11,21 +12,13 @@ def getPcapFiles(path, scenarioType):
     if os.path.exists(absPath) != True:
         print("Provided path is missing, canceling.")
         exit
-    for file in os.listdir(path):        
+    for file in os.listdir(path):
         if file.endswith(".pcap") or file.endswith(".har"):
-            if file.__len__() > 50:
-                print("\tERROR: File name is too long.")
-                print("\tPlease make it less than 50 characters and try again.")
-                print("\tCulprit: " + path + os.sep + file)
-                break
-            scenario = Scenario()
-            # API won't accept some characters, so swapping those with a dot like the CF GUI does
-            dstFileName = file.replace("-", ".")
-            dstFileName = file.replace("^", ".")
-            dstFileName = file.replace("+", ".")
-            dstFileName = file.replace("$", ".")
             sourcePath = absPath + os.sep + file
+            dstFileName = sanitizeFileName(file)
             dstPath = absPath + os.sep + dstFileName
+            print(dstPath)
+            scenario = Scenario()
             try:
                 if (os.path.exists(dstPath) != True):
                     os.rename(sourcePath, dstPath)
@@ -34,9 +27,33 @@ def getPcapFiles(path, scenarioType):
                 scenarios.append(scenario)
             except:
                 print("\tError handling file " + file + ", skipping.")
+                print("\\Exception: " + sys.exc_info()[0])
                 print("\t\tSource file: " + sourcePath)
                 print("\t\tDestination file: " + dstPath)
     return scenarios
+
+
+def sanitizeFileName(file):
+    dstFileName = file
+    # API won't accept file with names larger than 50 characters so we slice the file name to 50 (minus the extension size)
+    if file.__len__() > 50:
+        ext = os.path.splitext(file)[1]
+        base = os.path.splitext(file)[0]
+        maxlength = 50 - ext.__len__()
+        dstFileName = dstFileName[:maxlength] + ext
+        print("DEBUG: ext = " + ext)
+        print("DEBUG: base = " + base)
+        print("DEBUG: dstFileName = " + dstFileName)
+
+    # API won't accept some characters, so swapping those with a dot like the CF GUI does
+    dstFileName = dstFileName.replace("-", ".")
+    dstFileName = dstFileName.replace("^", ".")
+    dstFileName = dstFileName.replace("+", ".")
+    dstFileName = dstFileName.replace("$", ".")
+    print("DEBUG: dstFileName = " + dstFileName)
+
+    return dstFileName
+
 
 def uploadFile(cfClient, scenario):
     file = scenario.sourceFilePath
@@ -52,6 +69,7 @@ def uploadFile(cfClient, scenario):
         scenario.setSourceFileUploaded(False)
     return scenario
 
+
 def createScenario(cfClient, scenario):
     scenario = uploadFile(cfClient, scenario)
 
@@ -63,15 +81,16 @@ def createScenario(cfClient, scenario):
     count = 1
     print("\tWaiting for file processing... ", end="")
     while completed != True:
-        if count >= 11: 
-            completed = True  # We waited 10 seconds, if not completed yet, we won't attempt to create the scenario
+        if count >= 11:
+            # We waited 10 seconds, if not completed yet, we won't attempt to create the scenario
+            completed = True
             print("\tFile processing timed out, exiting.")
             return scenario
         fileDetailsResponse = cfClient.getFile(scenario.sourceFileId)
         if(fileDetailsResponse.status_code == 200):
-                if (json.loads(fileDetailsResponse.text)["completed"] == True):
-                    print("Done.")
-                    completed = True
+            if (json.loads(fileDetailsResponse.text)["completed"] == True):
+                print("Done.")
+                completed = True
         time.sleep(1)
         count += 1
     if (scenario.sourceFileUploaded == False):
@@ -93,8 +112,9 @@ def createScenario(cfClient, scenario):
     if scenario.scenarioCreated:
         moveSuccessImportFile(scenario.sourceFilePath)
     else:
-        moveFailedImportFile(scenario.sourceFilePath)    
+        moveFailedImportFile(scenario.sourceFilePath)
     return scenario
+
 
 def getScenarioIds(scenarios):
     scenarioIds = []
@@ -103,33 +123,39 @@ def getScenarioIds(scenarios):
         scenarioIds.append(entry)
     return scenarioIds
 
+
 def createAttackProfile(cfClient, scenarioIds):
     date = time.strftime("%c", time.localtime())
     name = "Attacks - " + date
     description = "Attacks automatically imported on " + date
-    createAttackProfileResponse = cfClient.createAttackProfile(name, description, scenarioIds)
+    createAttackProfileResponse = cfClient.createAttackProfile(
+        name, description, scenarioIds)
     if createAttackProfileResponse.status_code == 201:
         print("Created Attack Profile: " + name)
     else:
         print("Error creating Attack Profile: " + name)
         print(str(createAttackProfileResponse.content))
 
+
 def createApplicationProfile(cfClient, scenarioIds):
     date = time.strftime("%c", time.localtime())
     name = "Applications - " + date
     description = "Applications automatically imported on " + date
-    createApplicationProfile = cfClient.createApplicationProfile(name, description, scenarioIds)
+    createApplicationProfile = cfClient.createApplicationProfile(
+        name, description, scenarioIds)
     if createApplicationProfile.status_code == 201:
         print("Created Application Profile: " + name)
     else:
         print("Error creating Application Profile: " + name)
         print(str(createApplicationProfile.content))
 
+
 def createMalwareProfile(cfClient, scenarioIds):
     date = time.strftime("%c", time.localtime())
     name = "Malwares - " + date
     description = "Malwares automatically imported on " + date
-    createMalwareProfile = cfClient.createMalwareProfile(name, description, scenarioIds)
+    createMalwareProfile = cfClient.createMalwareProfile(
+        name, description, scenarioIds)
     if createMalwareProfile.status_code == 201:
         print("Created Malware Profile: " + name)
     else:
@@ -150,6 +176,7 @@ def createScenarios(cfClient, scenarios):
     # TODO: Maybe log failures
     return createdScenarios
 
+
 def cleanUpScenarios(cfClient, scenarios):
     print("\tCleaning up scenarios.")
     sanitizedList = []
@@ -168,6 +195,7 @@ def cleanUpScenarios(cfClient, scenarios):
     print("\tCleaned scenarios/files: " + str(cleaned))
     return sanitizedList
 
+
 def moveFailedImportFile(path):
     if(os.path.exists(path) == True):
         try:
@@ -176,6 +204,7 @@ def moveFailedImportFile(path):
         except:
             print("\t\tError moving file after failed import: ")
             print("\t\t" + path)
+
 
 def moveSuccessImportFile(path):
     if(os.path.exists(path) == True):
@@ -186,23 +215,27 @@ def moveSuccessImportFile(path):
             print("\t\tError moving file after successful import: ")
             print("\t\t" + path)
 
+
 def createAttackScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createAttackScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Attack Scenario')
-    
+
     return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
+
 
 def createApplicationScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createApplicationScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Application Scenario'
-    )    
+    )
     return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
+
 
 def createMalwareScenario(cfClient, scenario):
     createdScenarioResponse = cfClient.createMalwareScenario(
         scenario.sourceFileId, scenario.sourceFileName, 'Imported Malware Scenario'
     )
     return handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario)
+
 
 def handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario):
     if createdScenarioResponse.status_code == 201:
@@ -217,6 +250,7 @@ def handleCreatedScenarioResponse(cfClient, createdScenarioResponse, scenario):
               )
         scenario.scenarioCreated = False
     return scenario
+
 
 def createApplicationScenarios(cfClient, applicationScenarios):
     createdScenarios = []
