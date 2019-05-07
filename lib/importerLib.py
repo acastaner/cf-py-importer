@@ -17,7 +17,7 @@ def getPcapFiles(path, scenarioType):
             sourcePath = absPath + os.sep + file
             dstFileName = sanitizeFileName(file)
             dstPath = absPath + os.sep + dstFileName
-            #print(dstPath)
+            # print(dstPath)
             scenario = Scenario()
             try:
                 if (os.path.exists(dstPath) != True):
@@ -89,8 +89,6 @@ def createScenario(cfClient, scenario):
             if (json.loads(fileDetailsResponse.text)["contentType"] == "pcap"):
                 print("DEBUG: File is PCAP")
                 if (json.loads(fileDetailsResponse.text)["info"]["status"] == "completed"):
-                    print("DEBUG: PCAP is processed")
-                    print("Done.")
                     completed = True
             elif (json.loads(fileDetailsResponse.text)["completed"] == True):
                 print("Done.")
