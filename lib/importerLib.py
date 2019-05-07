@@ -17,7 +17,7 @@ def getPcapFiles(path, scenarioType):
             sourcePath = absPath + os.sep + file
             dstFileName = sanitizeFileName(file)
             dstPath = absPath + os.sep + dstFileName
-            print(dstPath)
+            #print(dstPath)
             scenario = Scenario()
             try:
                 if (os.path.exists(dstPath) != True):
@@ -40,17 +40,14 @@ def sanitizeFileName(file):
         ext = os.path.splitext(file)[1]
         base = os.path.splitext(file)[0]
         maxlength = 50 - ext.__len__()
-        dstFileName = dstFileName[:maxlength] + ext
-        print("DEBUG: ext = " + ext)
-        print("DEBUG: base = " + base)
-        print("DEBUG: dstFileName = " + dstFileName)
+        dstFileName = base[:maxlength] + ext
 
     # API won't accept some characters, so swapping those with a dot like the CF GUI does
     dstFileName = dstFileName.replace("-", ".")
     dstFileName = dstFileName.replace("^", ".")
     dstFileName = dstFileName.replace("+", ".")
     dstFileName = dstFileName.replace("$", ".")
-    print("DEBUG: dstFileName = " + dstFileName)
+    # print("DEBUG: dstFileName = " + dstFileName)
 
     return dstFileName
 
@@ -58,6 +55,7 @@ def sanitizeFileName(file):
 def uploadFile(cfClient, scenario):
     file = scenario.sourceFilePath
     print("\tUploading... ", end="")
+    print("\Source: " + file, end="")
     response = cfClient.uploadFileMultipart(file)
     if response.status_code == 201:
         scenario.setSourceFileId(json.loads(response.text)["id"])
@@ -88,7 +86,13 @@ def createScenario(cfClient, scenario):
             return scenario
         fileDetailsResponse = cfClient.getFile(scenario.sourceFileId)
         if(fileDetailsResponse.status_code == 200):
-            if (json.loads(fileDetailsResponse.text)["completed"] == True):
+            if (json.loads(fileDetailsResponse.text)["contentType"] == "pcap"):
+                print("DEBUG: File is PCAP")
+                if (json.loads(fileDetailsResponse.text)["info"]["status"] == "completed"):
+                    print("DEBUG: PCAP is processed")
+                    print("Done.")
+                    completed = True
+            elif (json.loads(fileDetailsResponse.text)["completed"] == True):
                 print("Done.")
                 completed = True
         time.sleep(1)
