@@ -87,7 +87,6 @@ def createScenario(cfClient, scenario):
         fileDetailsResponse = cfClient.getFile(scenario.sourceFileId)
         if(fileDetailsResponse.status_code == 200):
             if (json.loads(fileDetailsResponse.text)["contentType"] == "pcap"):
-                print("DEBUG: File is PCAP")
                 if (json.loads(fileDetailsResponse.text)["info"]["status"] == "completed"):
                     completed = True
             elif (json.loads(fileDetailsResponse.text)["completed"] == True):
