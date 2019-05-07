@@ -4,7 +4,7 @@
 # First started: 2018/12/17
 # License: MIT
 
-# dependencies: requests
+# dependencies: requests, cyberfloodClient
 
 # This program imports PCAP of attacks, malware and applications in the provided Spirent CyberFlood Controller
 # This program is NOT officially supported by Spirent
