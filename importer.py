@@ -23,9 +23,9 @@ from cyberfloodClient import CfClient
 print("Welcome to the CyberFlood Mass PCAP Importer!")
 print("Checking for connectivity & credentials...", end=" ")
 cfClient = CfClient(globalSettings["userName"],
-                                     globalSettings["userPassword"],
-                                     globalSettings["cfControllerAddress"]
-                                     )
+                    globalSettings["userPassword"],
+                    globalSettings["cfControllerAddress"]
+                    )
 
 # Authentication
 cfClient.generateToken()
@@ -47,23 +47,25 @@ malwares = importerLib.getPcapFiles(
 print("\tAttacks: " + str(attacks.__len__()))
 print("\tApplications: " + str(applications.__len__()))
 print("\tMalware: " + str(malwares.__len__()))
-
-## Scenarios & Profiles creation
+print('=======================================')
+# Scenarios & Profiles creation
 # Attacks #
 createdAttackScenarios = importerLib.createScenarios(cfClient, attacks)
 if createdAttackScenarios.__len__() > 0:
     attackScenarioIds = importerLib.getScenarioIds(createdAttackScenarios)
     importerLib.createAttackProfile(cfClient, attackScenarioIds)
 print("Created " + str(createdAttackScenarios.__len__()) + " attack scenarios.")
-
+print('=======================================')
 # Applications #
 createdApplicationScenarios = importerLib.createScenarios(
     cfClient, applications)
 if createdApplicationScenarios.__len__() > 0:
-    applicationScenarioIds = importerLib.getScenarioIds(createdApplicationScenarios)
+    applicationScenarioIds = importerLib.getScenarioIds(
+        createdApplicationScenarios)
     importerLib.createApplicationProfile(cfClient, applicationScenarioIds)
-print("Created " + str(createdApplicationScenarios.__len__()) + " application scenarios.")
-
+print("Created " + str(createdApplicationScenarios.__len__()) +
+      " application scenarios.")
+print('=======================================')
 # Malwares #
 createdMalwareScenarios = importerLib.createScenarios(
     cfClient, malwares)
@@ -72,3 +74,7 @@ if createdMalwareScenarios.__len__() > 0:
     importerLib.createMalwareProfile(cfClient, malwareScenarioIds)
 
 print("Created " + str(createdMalwareScenarios.__len__()) + " malware scenarios.")
+print('=======================================')
+print('Run complete.')
+cfClient.invalidateToken()
+print("(Authentication token deleted)")

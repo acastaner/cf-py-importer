@@ -54,8 +54,8 @@ def sanitizeFileName(file):
 
 def uploadFile(cfClient, scenario):
     file = scenario.sourceFilePath
+    print("\tSource: " + file)
     print("\tUploading... ", end="")
-    print("\Source: " + file, end="")
     response = cfClient.uploadFileMultipart(file)
     if response.status_code == 201:
         scenario.setSourceFileId(json.loads(response.text)["id"])
@@ -180,7 +180,7 @@ def createScenarios(cfClient, scenarios):
 
 
 def cleanUpScenarios(cfClient, scenarios):
-    print("\tCleaning up scenarios.")
+    print("Cleaning up scenarios.")
     sanitizedList = []
     for scenario in scenarios:
         if scenario.sourceFileUploaded == True and scenario.scenarioCreated == True:
@@ -194,7 +194,7 @@ def cleanUpScenarios(cfClient, scenarios):
         elif (scenario.sourceFileUploaded == False and os.path.exists(scenario.sourceFilePath)):
             moveFailedImportFile(scenario.sourceFilePath)
     cleaned = scenarios.__len__() - sanitizedList.__len__()
-    print("\tCleaned scenarios/files: " + str(cleaned))
+    print("Cleaned scenarios/files: " + str(cleaned))
     return sanitizedList
 
 
